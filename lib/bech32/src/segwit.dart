@@ -98,7 +98,7 @@ class SegwitDecoder extends Converter<String, Segwit> with SegwitValidations {
 /// Generic validations for a Segwit class.
 class SegwitValidations {
   bool isInvalidHrp(String hrp) {
-    return hrp != 'bc' && hrp != 'tb' && hrp != 'pc' && hrp != 'tpc';
+    return hrp != 'bc' && hrp != 'tb' && hrp != 'bcrt' && hrp != 'pc' && hrp != 'tpc';
   }
 
   bool isEmptyProgram(List<int> data) {

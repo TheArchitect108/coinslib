@@ -51,7 +51,7 @@ class Address {
 
     try {
       decodeBech32 = segwit.decode(address);
-    } catch (err) {}
+    } catch (err) {print("DECODING ERROR");}
 
     if (decodeBech32 != null) {
 

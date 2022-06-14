@@ -42,6 +42,15 @@ final testnet = new NetworkType(
     wif: 0xef,
     opreturnSize: 80);
 
+    final regtest = new NetworkType(
+    messagePrefix: '\x18Bitcoin Signed Message:\n',
+    bech32: 'bcrt',
+    bip32: new Bip32Type(public: 0x043587cf, private: 0x04358394),
+    pubKeyHash: 0x6f,
+    scriptHash: 0xc4,
+    wif: 0xef,
+    opreturnSize: 80);
+
 final peercoin = NetworkType(
   messagePrefix: '\x18Peercoin Signed Message:\n',
   bech32: 'pc',

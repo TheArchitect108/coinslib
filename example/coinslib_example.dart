@@ -2,37 +2,35 @@ import 'package:coinslib/coinslib.dart';
 import 'package:bip39/bip39.dart' as bip39;
 
 main() {
-  var Peercoin = NetworkType(
-    messagePrefix: '\x18Peercoin Signed Message:\n',
-    bech32: 'pc',
-    bip32: Bip32Type(public: 0x043587cf, private: 0x04358394),
-    pubKeyHash: 0x37,
-    scriptHash: 0x75,
-    wif: 0xb7,
-    opreturnSize: 256,
-  );
+  final alice = ECPair.fromWIF(
+      'cNGupyDhyzw44RKfNX61uWYeywc1Rbw6ozpZrvpBNEgG7R1jconA',
+      network: regtest);
 
-  var seed = bip39.mnemonicToSeed(
-      'praise you muffin lion enable neck grocery crumble super myself license ghost');
-  var hdWallet = new HDWallet.fromSeed(seed,
-      network: Peercoin); //default network is Bitcoin
-  print(hdWallet.address);
-  // => PAEeTmyME9rb2j3Ka9M65UG7To5wzZ36nf
-  print(hdWallet.pubKey);
-  // => 0360729fb3c4733e43bf91e5208b0d240f8d8de239cff3f2ebd616b94faa0007f4
-  print(hdWallet.privKey);
-  // => 01304181d699cd89db7de6337d597adf5f78dc1f0784c400e41a3bd829a5a226
-  print(hdWallet.wif);
-  // => U59hdLpi45SME3yjGoXXuYy8FVvW2yUoLdE3TJ3gfRYJZ33iWbfD
+  final txb = new TransactionBuilder(network: regtest);
+  final p2wpkh = new P2WPKH(
+          data: new PaymentData(pubkey: alice.publicKey), network: regtest)
+      .data;
 
-  var wallet = Wallet.fromWIF(
-      'U59hdLpi45SME3yjGoXXuYy8FVvW2yUoLdE3TJ3gfRYJZ33iWbfD', Peercoin);
-  print(wallet.address);
-  // => PAEeTmyME9rb2j3Ka9M65UG7To5wzZ36nf
-  print(wallet.pubKey);
-  // => 03aea0dfd576151cb399347aa6732f8fdf027b9ea3ea2e65fb754803f776e0a509
-  print(wallet.privKey);
-  // => 01304181d699cd89db7de6337d597adf5f78dc1f0784c400e41a3bd829a5a226
-  print(wallet.wif);
-  // => U59hdLpi45SME3yjGoXXuYy8FVvW2yUoLdE3TJ3gfRYJZ33iWbfD
+  print(p2wpkh.output);
+
+  txb.setVersion(1);
+  print(p2wpkh.address);
+  print(p2wpkh.witness);
+  //print(Address.addressToOutputScript(p2wpkh.address, regtest));
+
+  txb.addInput(
+      '31ea54998f26129bffe2c4ee53c3aa4614195f11b4aa770bf0e5eae78c8d35b4',
+      0,
+      null,
+      p2wpkh.output); // Alice's previous transaction output, has 15000 satoshis
+  print(txb.inputs[0].prevOutType);
+  txb.addNullOutput('ADD:BTC.BTC:tthor1zf3gsk7edzwl9syyefvfhle37cjtql35h6k85m');
+  txb.addOutput(
+      'bcrt1qwag6j309wc4r0g0kvq8lke64uks6vv55pd2ewq', 78100000);
+
+  txb.sign(vin: 0, keyPair: alice, witnessValue: 78125000);
+
+  print(txb.tx.outs[0].script);
+
+  print(txb.build().toHex());
 }
